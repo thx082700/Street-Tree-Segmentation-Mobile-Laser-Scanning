@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use SparseTree3D, please cite this repository and the WHU-STree dataset paper."
+title: "SparseTree3D"
+type: software
+authors:
+  - family-names: "Tian"
+    given-names: "Xiangxi"
+version: 0.1.0
+date-released: 2026-09-05
+url: "https://github.com/XiangxiTian/SparseTree3D"
+license: MIT
+preferred-citation:
+  type: article
+  title: "WHU-STree: A multi-modal benchmark dataset for street tree inventory"
+  authors:
+    - family-names: "Ding"
+      given-names: "Ruifei"
+    - family-names: "Chen"
+      given-names: "Zhe"
+    - family-names: "Fan"
+      given-names: "Wen"
+    - family-names: "Long"
+      given-names: "Chen"
+    - family-names: "Xiao"
+      given-names: "Huijuan"
+    - family-names: "Zeng"
+      given-names: "Yelu"
+    - family-names: "Dong"
+      given-names: "Zhen"
+    - family-names: "Yang"
+      given-names: "Bisheng"
+  journal: "ISPRS Journal of Photogrammetry and Remote Sensing"
+  volume: 233
+  start: 519
+  end: 542
+  year: 2026
+  doi: "10.1016/j.isprsjprs.2026.02.011"
+

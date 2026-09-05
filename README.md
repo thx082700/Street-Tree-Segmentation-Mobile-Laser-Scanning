@@ -1,6 +1,6 @@
 # SparseTree3D
 
-[![CI](https://github.com/XiangxiTian/SparseTree3D/actions/workflows/ci.yml/badge.svg)](https://github.com/XiangxiTian/SparseTree3D/actions/workflows/ci.yml)
+[![CI](https://github.com/thx082700/SparseTree3D/actions/workflows/ci.yml/badge.svg)](https://github.com/thx082700/SparseTree3D/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -73,7 +73,7 @@ for the implementation details and metric definitions.
 The evaluation and post-processing modules run on CPU and do not require PyTorch:
 
 ```bash
-git clone https://github.com/XiangxiTian/SparseTree3D.git
+git clone https://github.com/thx082700/SparseTree3D.git
 cd SparseTree3D
 python -m venv .venv
 source .venv/bin/activate
@@ -198,4 +198,3 @@ WHU-STree is maintained by the WHU-USI3DV team. If you use the dataset, cite the
 
 The result images and leaderboard snapshot are reproduced from the author's competition report.
 No WHU-STree point clouds, annotations, or panoramic images are redistributed by this repository.
-
