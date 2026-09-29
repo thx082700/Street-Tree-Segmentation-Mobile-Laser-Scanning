@@ -1,93 +1,55 @@
-# Method and evaluation
+# Method
 
-## Problem definition
+## Task
 
-For every input point in a mobile LiDAR scene, predict `0` for background or a positive integer
-identifying one street-tree instance. The competition evaluates both instance detection and point
-coverage. A useful model must therefore locate each tree and delineate its full crown and trunk.
+For every point in a mobile-LiDAR street scene, predict `-1` for background or a
+positive integer identifying one tree. The system must separate adjacent crowns
+while preserving each tree's trunk and crown coverage.
 
-## Sparse input representation
+## Sparse backbone
 
-The loader subtracts the scene origin and quantizes coordinates at the configured voxel size. A
-single representative point supplies the features for each occupied voxel. The sparse tensor uses
-four channels:
+The recovered model uses `spconv` rather than MinkowskiEngine. Input coordinates
+are quantized at 0.10 m and converted to sparse voxels. A seven-level U-Net uses
+residual sparse-convolution blocks with 32 initial channels. Overlapping tiles
+provide context for large scenes without constructing a dense 3D grid.
 
-1. occupancy (`1`),
-2. robustly normalized intensity,
-3. relative height, and
-4. horizontal radius from the scene median.
+## Prediction heads and loss
 
-The inverse voxel map transfers predictions back to every original point without reordering the
-scene.
+The shared backbone feeds two multilayer perceptrons:
 
-## Network and targets
+- a two-class semantic head for tree and non-tree logits;
+- a three-value offset head pointing each tree point toward its instance base.
 
-The encoder downsamples a sparse tensor three times. Residual sparse convolutions increase the
-receptive field while keeping computation proportional to occupied voxels. The decoder restores
-the original voxel resolution through transposed sparse convolutions and skip connections.
+The dataset code derives the offset target from a robust mean of low points in
+each labeled tree. The training implementation applies pointwise cross entropy
+and the mean Euclidean offset error. It multiplies semantic loss by 50 before
+summing both terms.
 
-Two `1 x 1 x 1` sparse heads predict:
+## Grouping
 
-- logits for background and tree; and
-- a three-dimensional vector from each tree point to its instance centroid.
+Inference retains points with tree probability at least 0.5. Clustering focuses
+on points that also satisfy a verticality threshold of 0.6 and a vertical offset
+limit of 4 m. HDBSCAN uses `tau_min=50`; DBSCAN remains available with
+`tau_group=0.15` m.
 
-For point `p_i` belonging to tree `k`, the offset target is
+After initial clustering, the pipeline assigns unclustered predicted tree points
+to the nearest valid instance in offset-shifted space. Overlapping tiles are
+ensembled, and labels are propagated from voxelized points to the original
+point-cloud coordinates.
 
-```text
-o_i = mean({p_j | instance(j) = k}) - p_i
-```
+## Competition adapters
 
-Background points have a zero target and do not contribute to the offset loss.
+The recovered project used multiple label-matching scripts. The public release
+consolidates them into a KD-tree implementation with a 1 cm tolerance. This is
+both faster and safer than assuming that filtered LAZ points remain in exactly
+the same sequence as the PLY input.
 
-## Objective
+## Observed failure modes
 
-```text
-L = weighted_cross_entropy(semantic_logits, tree_mask)
-    + lambda_offset * mean_squared_error(predicted_offset, target_offset)
-```
+Low-density returns can create small fragments, while overlapping crowns can
+merge neighboring trees. The post-competition report visualized both cases and
+used scene-specific inspection/refinement during submission preparation.
 
-Class weights compensate for the high proportion of roads, buildings, vehicles, and other
-background points. The original report describes fine-tuning from S3DIS pretraining. This release
-loads every shape-compatible layer from a supplied checkpoint and safely leaves incompatible task
-heads uninitialized.
-
-## Instance generation
-
-1. Retain voxels whose predicted tree probability exceeds the threshold.
-2. Shift each retained voxel by its predicted centroid offset.
-3. Run DBSCAN in shifted 3D space.
-4. Split clusters whose horizontal extent or point count is implausibly large.
-5. Merge small fragments and nearby noise into stable clusters.
-6. Renumber final trees from `1` and map voxel IDs back to original points.
-
-The fourth and fifth stages encode the two failure cases identified in the competition report:
-under-segmentation creates abnormally large clusters, while over-segmentation creates clusters
-with very few points.
-
-| Fragmented prediction | After fragment merging |
+| Before refinement | After refinement |
 | --- | --- |
-| ![Small over-segmented fragments](../assets/oversegmentation_before.png) | ![Merged tree instance](../assets/oversegmentation_after.png) |
-
-## Metrics
-
-Let `G_i` be a ground-truth instance and `P_j` a predicted instance.
-
-```text
-IoU(G_i, P_j) = |G_i intersect P_j| / |G_i union P_j|
-```
-
-The evaluator uses one-to-one Hungarian matching. A matched pair counts as a true positive when
-its IoU reaches the competition threshold, `0.75`. Precision, Recall, and F1 follow from the total
-true positives, false positives, and false negatives.
-
-Coverage measures the best available overlap for each ground-truth tree, whether or not that
-overlap reaches the detection threshold:
-
-```text
-Cov  = mean_i max_j IoU(G_i, P_j)
-WCov = sum_i |G_i| * max_j IoU(G_i, P_j) / sum_i |G_i|
-```
-
-WCov gives larger trees proportionally more influence. Dataset-level Cov is weighted by the
-number of ground-truth instances in each scene; dataset-level WCov is weighted by the number of
-ground-truth tree points.
+| ![Fragmented predictions](../assets/oversegmentation_before.png) | ![Refined instances](../assets/oversegmentation_after.png) |

@@ -1,0 +1,19 @@
+# Install PyTorch 2.0.0 with CUDA 11.8 from the official PyTorch channel first.
+# spconv must match the local CUDA runtime.
+spconv-cu118
+munch==2.5.0
+pandas==2.0.0
+plyfile==0.9
+PyYAML==6.0
+scikit-learn==1.5.0
+six==1.16.0
+tqdm==4.66.3
+open3d==0.17.0
+jakteristics==0.5.1
+shapely==2.0.1
+geopandas==0.12.2
+alphashape==1.3.1
+laspy[lazrs]==2.5.1
+timm==0.6.12
+tensorboard>=2.12
+tensorboardX>=2.6

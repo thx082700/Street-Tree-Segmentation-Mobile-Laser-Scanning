@@ -28,9 +28,12 @@ def test_competition_stem() -> None:
 
 
 def test_submission_archive(tmp_path: Path) -> None:
-    first = save_prediction(tmp_path / "05_3.npy", np.array([0, 1, 1]))
+    first = save_prediction(tmp_path / "05_3.npy", np.array([-1, 1, 1]))
     second = save_prediction(tmp_path / "13_2.npy", np.array([[0], [2], [2]]))
     assert validate_prediction_file(first) == (3, 1)
+    saved = np.load(first, allow_pickle=False)
+    assert saved.shape == (3, 1)
+    assert saved.dtype == np.int16
     archive = make_submission_archive([second, first], tmp_path / "submission.zip")
     with zipfile.ZipFile(archive) as bundle:
         assert bundle.namelist() == ["05_3.npy", "13_2.npy"]
@@ -39,4 +42,3 @@ def test_submission_archive(tmp_path: Path) -> None:
 def test_rejects_invalid_prediction_shape(tmp_path: Path) -> None:
     with pytest.raises(ValueError):
         save_prediction(tmp_path / "05_3.npy", np.zeros((2, 2)))
-

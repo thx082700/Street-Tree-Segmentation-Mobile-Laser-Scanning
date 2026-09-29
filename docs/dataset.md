@@ -1,39 +1,51 @@
 # WHU-STree data notes
 
-## Official release
+## Sources
 
-WHU-STree combines synchronized mobile LiDAR point clouds and street-view images from Nanjing and
-Shenyang. The official repository reports 21,007 annotated tree instances, more than 50 species,
-and tree height and diameter-at-breast-height attributes. See:
+- Official dataset repository: <https://github.com/WHU-USI3DV/WHU-STree>
+- Competition resource page: <http://www.lidar2025wuhan.com/resources1.html>
+- Track 3 Codabench page: <https://www.codabench.org/competitions/8821/>
 
-- Dataset repository: <https://github.com/WHU-USI3DV/WHU-STree>
-- Track 3 rules: <https://www.lidar2025wuhan.com/resources1.html>
-- Competition page: <https://www.codabench.org/competitions/8821/>
+The dataset is not redistributed in this repository. Follow the official license,
+request procedure, and competition terms.
 
-The official repository states that the 2025 competition subset is no longer distributed. Do not
-commit requested dataset files or derived labels to this repository. Follow the dataset terms in
-the data-request form.
+## Competition layout
 
-## Point-cloud fields
-
-The current release documents each PLY vertex as:
+Recovered scripts expect each split to contain road directories:
 
 ```text
-[x, y, z, intensity, tree, label]
+train/
+├── 05/PCD/*.ply
+├── 06/PCD/*.ply
+└── ...
 ```
 
-`tree` contains the instance ID. `label` contains the species label and is intentionally unused by
-the species-agnostic Track 3 pipeline.
+Training files expose XYZ and a `tree` instance field. Current public WHU-STree
+files may additionally provide intensity and species labels; the competition
+pipeline does not require species labels.
 
-## Split policy
+## Working layout
 
-The helper groups clouds by road before hashing roads into train and validation sets. This avoids
-putting two trajectories from the same road in different sets. For official benchmarking, use the
-provided split and reserve `reference_data` for evaluation only.
+`tools/convert_whu_stree.py` produces:
 
-## Competition output
+```text
+data/competition/
+├── train/forests/<road>_<cloud>.laz
+└── test/pipeline_<road>_<cloud>/forest/<road>_<cloud>.laz
+```
 
-Each prediction must preserve the input point order and contain one instance ID per point. Files
-use a non-negative `int16` vector and the exact name `<road_id>_<point_cloud_id>.npy`. The final ZIP
-is flat; it contains no parent directory.
+Random crops are written under `train/random_crops/npz`; validation tiles under
+`val/tiles/npz`; inference outputs remain inside each `pipeline_*` directory.
 
+## Submission layout
+
+Every NumPy file has the original PLY point count and order, shape `[N, 1]`, and
+dtype `int16`. The recovered submission code uses `-1` for background/unassigned
+points and positive integers for tree instances. The submission ZIP is flat and
+contains no parent directory.
+
+## Data leakage
+
+Use road-disjoint training and validation sets. Nearby trajectories can capture
+the same trees, so random file-level splitting may leak scene geometry across
+training and validation.

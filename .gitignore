@@ -12,9 +12,10 @@ build/
 *.egg-info/
 
 # Datasets, checkpoints, predictions, and experiment logs
-data/WHU-STree-*/
+data/
 checkpoints/
 outputs/
+work_dirs/
 runs/
 wandb/
 *.pth
@@ -26,4 +27,3 @@ wandb/
 .DS_Store
 .idea/
 .vscode/
-

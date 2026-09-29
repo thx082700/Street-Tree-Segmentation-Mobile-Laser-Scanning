@@ -111,7 +111,12 @@ def competition_stem(path: str | Path) -> str:
 
 
 def save_prediction(path: str | Path, labels: np.ndarray) -> Path:
-    """Save a competition-format int16 instance vector."""
+    """Save a competition-format ``int16`` column vector.
+
+    The submitted Track 3 conversion scripts used ``-1`` for background or
+    points that could not be mapped back after filtering. Positive integers are
+    tree instances.
+    """
 
     destination = Path(path)
     if destination.suffix != ".npy":
@@ -121,10 +126,10 @@ def save_prediction(path: str | Path, labels: np.ndarray) -> Path:
         values = values[:, 0]
     if values.ndim != 1:
         raise ValueError("Prediction labels must have shape [N] or [N, 1]")
-    if values.size and (values.min() < 0 or values.max() > np.iinfo(np.int16).max):
-        raise ValueError("Instance IDs must fit in non-negative int16")
+    if values.size and (values.min() < -1 or values.max() > np.iinfo(np.int16).max):
+        raise ValueError("Instance IDs must fit in int16 and may only use -1 as a sentinel")
     destination.parent.mkdir(parents=True, exist_ok=True)
-    np.save(destination, values.astype(np.int16, copy=False))
+    np.save(destination, values.astype(np.int16, copy=False).reshape(-1, 1))
     return destination
 
 
@@ -141,8 +146,8 @@ def validate_prediction_file(path: str | Path) -> tuple[int, int]:
         labels = labels[:, 0]
     if labels.ndim != 1:
         raise ValueError(f"{source.name} must have shape [N] or [N, 1]")
-    if labels.size and labels.min() < 0:
-        raise ValueError(f"{source.name} contains negative instance IDs")
+    if labels.size and labels.min() < -1:
+        raise ValueError(f"{source.name} contains labels below the -1 sentinel")
     return int(labels.size), int(np.unique(labels[labels > 0]).size)
 
 

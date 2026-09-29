@@ -3,11 +3,8 @@ numpy>=1.24
 plyfile>=1.0
 PyYAML>=6.0
 scikit-learn>=1.3
+scipy>=1.10
 
-# Training dependencies. Install a PyTorch build that matches your CUDA version.
-torch>=2.1
-tqdm>=4.66
-
-# MinkowskiEngine is intentionally installed separately because its build must
-# match the local CUDA and PyTorch toolchain. See README.md.
-
+# GPU competition dependencies are pinned in requirements-competition-cu118.txt.
+# Install the core project with `pip install -e .` and development tools with
+# `pip install -e ".[dev]"`.
