@@ -119,14 +119,21 @@ python tools/competition/evaluation/evaluate.py \
 
 ## 引用
 
-如果本仓库支持了你的研究，请通过 [`CITATION.cff`](CITATION.cff)引用本软件，
-并根据 WHU-STree 官方仓库提供的文献信息引用数据集。
+如果本仓库支持了你的研究，请使用以下格式引用：
+
+```latex
+\bibitem{street_tree_segmentation_mls}
+Haoxi Tian.
+\textit{Street-Tree-Segmentation-Mobile-Laser-Scanning}.
+GitHub repository, 2026.
+\url{https://github.com/thx082700/Street-Tree-Segmentation-Mobile-Laser-Scanning}.
+```
 
 ## 许可证
 
 本项目的原创代码和文档采用 [MIT 许可证](LICENSE)。
-派生自 TreeLearn 的文件继续遵循
-[`third_party/TreeLearn_LICENSE`](third_party/TreeLearn_LICENSE)中的 MIT 许可声明。
+派生自 TreeLearn 的文件继续遵循上游的
+[MIT 许可声明](https://github.com/ecker-lab/TreeLearn/blob/main/LICENSE)。
 
 请同时根据 TreeLearn [官方仓库](https://github.com/ecker-lab/TreeLearn)
 提供的文献信息引用该项目。

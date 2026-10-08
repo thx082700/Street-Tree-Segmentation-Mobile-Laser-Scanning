@@ -121,16 +121,22 @@ python tools/competition/evaluation/evaluate.py \
 
 ## Citation
 
-If this repository supports your work, cite the software through
-[`CITATION.cff`](CITATION.cff) and cite WHU-STree using the bibliographic
-information from its official repository.
+If this repository supports your work, please cite:
+
+```latex
+\bibitem{street_tree_segmentation_mls}
+Haoxi Tian.
+\textit{Street-Tree-Segmentation-Mobile-Laser-Scanning}.
+GitHub repository, 2026.
+\url{https://github.com/thx082700/Street-Tree-Segmentation-Mobile-Laser-Scanning}.
+```
 
 ## License
 
 Street-Tree-Segmentation-Mobile-Laser-Scanning's original code and documentation
 are released under the
 [MIT License](LICENSE). Upstream-derived TreeLearn files remain subject to the
-MIT notice in [`third_party/TreeLearn_LICENSE`](third_party/TreeLearn_LICENSE).
+[upstream MIT license notice](https://github.com/ecker-lab/TreeLearn/blob/main/LICENSE).
 
 Please also cite TreeLearn using the bibliographic information in its
 [official repository](https://github.com/ecker-lab/TreeLearn).
