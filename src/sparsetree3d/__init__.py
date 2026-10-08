@@ -1,4 +1,4 @@
-"""SparseTree3D core package."""
+"""Core package for Street-Tree-Segmentation-Mobile-Laser-Scanning."""
 
 from sparsetree3d.metrics import InstanceMetrics, evaluate_instances
 from sparsetree3d.postprocess import PostprocessConfig, cluster_instances

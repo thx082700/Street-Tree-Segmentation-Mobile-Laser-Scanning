@@ -1,15 +1,15 @@
 cff-version: 1.2.0
-message: "If you use SparseTree3D, please cite this repository and the WHU-STree dataset paper."
-title: "SparseTree3D: Urban Street-Tree Instance Segmentation"
+message: "If you use Street-Tree-Segmentation-Mobile-Laser-Scanning, please cite this repository and the WHU-STree dataset paper."
+title: "Street-Tree-Segmentation-Mobile-Laser-Scanning"
 type: software
 authors:
   - family-names: "Tian"
     given-names: "Haoxi"
 version: 0.2.0
 date-released: 2026-09-29
-url: "https://github.com/thx082700/SparseTree3D"
+url: "https://github.com/thx082700/Street-Tree-Segmentation-Mobile-Laser-Scanning"
 license: MIT
-repository-code: "https://github.com/thx082700/SparseTree3D"
+repository-code: "https://github.com/thx082700/Street-Tree-Segmentation-Mobile-Laser-Scanning"
 abstract: >-
   A competition adaptation of TreeLearn for mobile-LiDAR urban street-tree
   instance segmentation on WHU-STree, including preprocessing, sparse-convolution

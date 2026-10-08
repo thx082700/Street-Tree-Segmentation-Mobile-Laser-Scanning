@@ -1,4 +1,4 @@
-name: sparsetree3d
+name: Street-Tree-Segmentation-Mobile-Laser-Scanning
 channels:
   - pytorch
   - nvidia

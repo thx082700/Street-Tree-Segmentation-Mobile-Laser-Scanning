@@ -10,9 +10,7 @@ TreeLearn is distributed under the MIT License. A copy is included at
 
 This repository adds the WHU-STree competition conversion, scene configurations,
 outlier handling, batch execution, prediction back-projection, submission
-validation, tests, and project documentation. See
-[`docs/provenance.md`](docs/provenance.md) for the boundary between upstream code
-and competition-specific work.
+validation, tests, and project documentation.
 
 ## SoftGroup and spconv
 

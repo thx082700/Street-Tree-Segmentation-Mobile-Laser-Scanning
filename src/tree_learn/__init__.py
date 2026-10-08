@@ -1,4 +1,4 @@
-"""TreeLearn research pipeline used by the SparseTree3D competition solution.
+"""TreeLearn research pipeline for Street-Tree-Segmentation-Mobile-Laser-Scanning.
 
 The implementation is adapted from ecker-lab/TreeLearn under the MIT License.
 Competition-specific preprocessing, configuration, and export code lives in

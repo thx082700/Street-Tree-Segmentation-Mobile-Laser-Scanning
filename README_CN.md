@@ -1,103 +1,67 @@
-# SparseTree3D
+# Street-Tree-Segmentation-Mobile-Laser-Scanning
 
-SparseTree3D 是面向车载激光雷达城市行道树点云的单木实例分割项目。本仓库现已纳入
-比赛时使用的真实 `spconv` 稀疏卷积代码、训练与推理配置、数据转换、点标签回投、评测
-及 Codabench 提交工具。
+[![CI](https://github.com/thx082700/Street-Tree-Segmentation-Mobile-Laser-Scanning/actions/workflows/ci.yml/badge.svg)](https://github.com/thx082700/Street-Tree-Segmentation-Mobile-Laser-Scanning/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-3.10-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Task](https://img.shields.io/badge/task-3D%20instance%20segmentation-5c6bc0)](http://www.lidar2025wuhan.com/resources1.html)
 
-**比赛成绩：** 第九届全国激光雷达大会点云智能解析大赛赛道三“城市道路场景单木
-分割”**特等奖**。Codabench 提交 `362701` 的 F1 为 **0.829**、WCov 为 **0.903**，
-最终公开榜排名第 **2**。2025 年 9 月 2 日保存的早期截图中，该提交曾暂列第 1；后来有
-新的提交进入榜单，因此奖项、早期榜单和最终榜单在仓库中分别说明，避免混淆。
+2025 年第九届全国激光雷达大会点云智能解析大赛赛道三
+“城市道路场景单木分割”的第一名方案。
 
-![比赛结果可视化](assets/segmentation_examples.png)
+[English](README.md)
 
-## 评测结果
+![比赛报告中的行道树实例分割预测](assets/segmentation_examples.png)
 
-| 指标 | 成绩 |
-| --- | ---: |
-| Cov | 0.849 |
-| WCov | 0.903 |
-| Precision | 0.843 |
-| Recall | 0.816 |
-| **F1** | **0.829** |
-| 最终公开榜 | **第 2 名** |
-| 正式奖项 | **特等奖** |
+## 预测结果展示
 
-- [2025 年 9 月 2 日榜单截图](assets/leaderboard.png)
-- [最终榜单截图](assets/leaderboard_final.png)
-- [获奖证书隐私处理版](assets/award_certificate_redacted.jpg)（姓名与指导教师姓名已遮挡）
-- [成绩与证据说明](docs/results.md)
+以下图片来自比赛结束后的汇报材料。不同颜色表示预测的单木实例，
+灰色点表示周围道路场景。
 
-![隐私处理后的特等奖证书](assets/award_certificate_redacted.jpg)
+| 场景 | 难点 |
+| --- | --- |
+| ![WHU-STree 场景 05_3-2](assets/result_05_3-2.png) | 树木大小不同，多排行道树 |
+| ![WHU-STree 场景 13_2](assets/result_13_2.png) | 点云密度不均匀 |
+| ![WHU-STree 场景 15_2-1](assets/result_15_2-1.png) | 阔叶树冠相互重叠 |
+| ![WHU-STree 场景 17_3-3](assets/result_17_3-3.png) | 阔叶树与针叶树混合 |
 
-## 实际方案
+## 安装
 
-1. 将 WHU-STree PLY 转换为 TreeLearn 使用的 LAZ 格式，并处理异常坐标。
-2. 以 0.10 m 体素进行采样，生成随机训练裁块和重叠推理瓦片。
-3. 使用七层 `spconv` 稀疏 U-Net 提取点云特征。
-4. 同时预测树木/非树木语义和指向单木基部/中心的三维偏移。
-5. 根据语义置信度、垂直度和偏移幅值过滤点，在偏移后的坐标上执行 HDBSCAN/DBSCAN。
-6. 将未分配点归入最近有效实例，再把标签按原 PLY 点序回投。
-7. 输出 Codabench 需要的 `[N, 1]`、`int16` NumPy 文件并压缩成 ZIP。
-
-赛时配置中的主要参数为：体素大小 0.10 m、`tau_vert=0.6`、`tau_off=4`、
-`tau_min=50`。训练采用 AdamW、初始学习率 0.003、batch size 6、混合精度和最长
-3,000 epoch。
-
-## 仓库内容
-
-```text
-src/tree_learn/              比赛使用的模型、数据集与推理流水线
-src/sparsetree3d/            可独立测试的转换、回投、评测和提交工具
-configs/competition/         训练配置和 8 个场景推理配置
-tools/competition/           训练、推理、数据生成和评测入口
-tools/convert_whu_stree.py   PLY 到 LAZ 转换
-tools/run_competition_batch.py
-tools/export_submission.py   回投标签并生成提交 ZIP
-tests/                       CPU 可运行的回归测试
-assets/                      原始汇报结果图、榜单与获奖证明
-```
-
-## CPU 快速检查
-
-这条流程用于检查安装、聚类、评测和提交工具，不等同于真实神经网络预测：
+使用支持 CUDA 的 Linux 工作站，环境为 Python 3.10、PyTorch 2.0.0、
+CUDA 11.8 和 `spconv-cu118`。
 
 ```bash
-git clone https://github.com/thx082700/SparseTree3D.git
-cd SparseTree3D
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -U pip
-python -m pip install -e ".[dev]"
-python examples/synthetic_demo.py
-pytest
-```
-
-## GPU 环境
-
-恢复的比赛环境为 Python 3.10、PyTorch 2.0.0、CUDA 11.8 和 `spconv-cu118`：
-
-```bash
-conda env create -f environment.yml
-conda activate sparsetree3d
+git clone https://github.com/thx082700/Street-Tree-Segmentation-Mobile-Laser-Scanning.git
+cd Street-Tree-Segmentation-Mobile-Laser-Scanning
+conda create -n Street-Tree-Segmentation-Mobile-Laser-Scanning python=3.10
+conda activate Street-Tree-Segmentation-Mobile-Laser-Scanning
+conda install pytorch=2.0.0 torchvision=0.15.0 torchaudio=2.0.0 \
+  pytorch-cuda=11.8 -c pytorch -c nvidia
+python -m pip install spconv-cu118
+python -m pip install -e ".[competition]"
 ```
 
 ## 数据准备
 
-通过 [WHU-STree 官方仓库](https://github.com/WHU-USI3DV/WHU-STree)申请或下载数据，
-不要把数据集提交到本仓库。
+从 [WHU-STree 官方仓库](https://github.com/WHU-USI3DV/WHU-STree)获取数据集。
+将带标签的训练 PLY 文件放在
+`data/raw/WHU-STree-for-competition/train/<road>/PCD/`，
+测试 PLY 文件放在 `data/raw/WHU-STree-for-competition/test/<road>/PCD/`。
+
+转换训练和测试点云：
 
 ```bash
 python tools/convert_whu_stree.py \
   data/raw/WHU-STree-for-competition/train \
   data/competition/train --labeled
-
 python tools/convert_whu_stree.py \
   data/raw/WHU-STree-for-competition/test \
   data/competition/test
 ```
 
-生成训练裁块和验证瓦片：
+从 `data/competition/train/forests/` 中移出一份点云作为验证集，
+放入 `data/competition/val/forest/`。默认配置使用 `12_1.laz`；
+如果使用其他文件，请修改 `configs/competition/gen_val_data.yaml` 中的 `forest_path`。
+然后生成训练裁块和验证瓦片：
 
 ```bash
 python tools/competition/data_gen/gen_train_data.py \
@@ -106,47 +70,63 @@ python tools/competition/data_gen/gen_val_data.py \
   --config configs/competition/gen_val_data.yaml
 ```
 
-## 训练、推理和提交
+## 训练
 
-`checkpoints/hais_ckpt_spconv2.pth` 是 SoftGroup/HAIS 预训练初始化，不是比赛最终模型。
-训练命令：
+将 SoftGroup/HAIS 预训练初始化权重放到 `checkpoints/hais_ckpt_spconv2.pth`，
+然后开始训练：
 
 ```bash
 python tools/train.py --config configs/competition/train.yaml \
   --work_dir competition
 ```
 
-将选定的微调模型保存为 `checkpoints/competition_epoch_1000.pth` 后，可以推理一个场景
-或全部八个场景：
+训练设置位于 `configs/competition/train.yaml`，模型权重保存在
+`work_dirs/competition/` 下。
+
+## 推理
+
+将微调后的模型权重放到 `checkpoints/competition_epoch_1000.pth`，
+然后对一个场景进行推理：
 
 ```bash
 python tools/infer.py \
   --config configs/competition/pipeline/pipeline_13_2.yaml
+```
+
+运行全部八个场景配置：
+
+```bash
 python tools/run_competition_batch.py
 ```
 
-生成提交包：
+## 评估
+
+对点序已对齐的 NumPy 真值和预测目录进行评估：
 
 ```bash
-python tools/export_submission.py \
-  data/raw/WHU-STree-for-competition/test \
-  data/competition/test \
-  outputs/sparsetree3d_submission.zip
+sparsetree-evaluate data/reference_npy outputs/predictions \
+  --iou-threshold 0.75
 ```
 
-## 可复现范围
+评估输出精确率（Precision）、召回率（Recall）、F1、Cov 和 WCov。
+进行森林级评估时，先在 `configs/competition/evaluate.yaml` 中设置
+`paths.pred_forest_path` 和 `paths.gt_forest_path`，然后运行：
 
-本次恢复的项目文件包含真实比赛代码、配置和 353 MB 预训练初始化权重，但不包含比赛
-训练数据、最终微调权重 `work_dirs/0812/epoch_1000.pth` 和训练日志。因此仓库可以用于
-重新训练、推理和制作合规提交，但在找回最终权重前，不能声称下载后即可复现 F1 0.829。
-仓库中的分数对应历史提交 `362701`，完整边界见
-[docs/reproduction.md](docs/reproduction.md) 和 [docs/provenance.md](docs/provenance.md)。
+```bash
+python tools/competition/evaluation/evaluate.py \
+  --config configs/competition/evaluate.yaml
+```
 
-## 项目归属与引用
+## 引用
 
-比赛适配与提交者：**田浩希，西南石油大学**；指导教师：**熊俊楠、贾宏亮**。
+如果本仓库支持了你的研究，请通过 [`CITATION.cff`](CITATION.cff)引用本软件，
+并根据 WHU-STree 官方仓库提供的文献信息引用数据集。
 
-本项目基于开源 [TreeLearn](https://github.com/ecker-lab/TreeLearn)，后者又使用了
-SoftGroup 与 spconv。本仓库不把上游方法声明为个人原创；比赛工作主要包括 WHU-STree
-适配、训练配置、场景预处理、批量推理、结果回投与提交。许可证与第三方说明见
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+## 许可证
+
+本项目的原创代码和文档采用 [MIT 许可证](LICENSE)。
+派生自 TreeLearn 的文件继续遵循
+[`third_party/TreeLearn_LICENSE`](third_party/TreeLearn_LICENSE)中的 MIT 许可声明。
+
+请同时根据 TreeLearn [官方仓库](https://github.com/ecker-lab/TreeLearn)
+提供的文献信息引用该项目。
